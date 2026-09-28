@@ -4,11 +4,35 @@
  * ratings, years or quantities unless the business supplies them.
  */
 
+const FALLBACK_URL = "https://www.chennaileatherfactory.com";
+
+/**
+ * Canonical site origin. Order: NEXT_PUBLIC_SITE_URL (if a valid URL), then the
+ * Vercel production domain, then the fallback. Blank or malformed values
+ * (e.g. an empty env var in the Vercel dashboard) must never break the build.
+ */
+function resolveSiteUrl(): string {
+  const candidates = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
+  ];
+  for (const raw of candidates) {
+    const value = raw?.trim();
+    if (!value) continue;
+    try {
+      const url = new URL(/^https?:\/\//.test(value) ? value : `https://${value}`);
+      return url.origin;
+    } catch {
+      // ignore malformed values and try the next candidate
+    }
+  }
+  return FALLBACK_URL;
+}
+
 export const site = {
   name: "Chennai Leather Factory",
   shortName: "CLF",
-  // TODO: replace with the live domain before launch.
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.chennaileatherfactory.com",
+  url: resolveSiteUrl(),
   description:
     "Leather products, customization, wholesale and private-label manufacturing in Chennai.",
   phone: {
