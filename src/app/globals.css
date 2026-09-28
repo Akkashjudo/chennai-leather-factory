@@ -1,26 +1,409 @@
 @import "tailwindcss";
 
+/* ───────────────────────── Tokens ───────────────────────── */
+@theme {
+  --color-ink: #100e0c;
+  --color-charcoal: #1b1815;
+  --color-graphite: #2a2622;
+  --color-ivory: #f5f0e7;
+  --color-bone: #ebe3d5;
+  --color-sand: #d9ccb6;
+  --color-cognac: #9c5a2e;
+  --color-cognac-deep: #7a4420;
+  --color-tan: #cfa55f;
+  --color-wa: #1f7a4d;
+  --color-wa-deep: #186540;
+
+  --font-serif: var(--font-display), "Times New Roman", serif;
+  --font-sans: var(--font-body), system-ui, sans-serif;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Layout rhythm — every section uses these, never ad-hoc padding. */
+  --gutter: clamp(1.25rem, 0.75rem + 2.2vw, 2.5rem);
+  --section-y: clamp(4.5rem, 2.8rem + 6.5vw, 8.5rem);
+  --section-y-sm: clamp(3.5rem, 2.4rem + 4vw, 6rem);
+  --head-gap: clamp(2.5rem, 1.8rem + 2.6vw, 4.5rem);
+  --header-h: 4.5rem;
+  --mobile-bar-h: 4rem;
+  /* Loader offset for hero entrance; 0 when the intro has already played. */
+  --intro: 1.05s;
+}
+:root.intro-seen {
+  --intro: 0s;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ───────────────────────── Base ───────────────────────── */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  body {
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--color-cognac);
+    color: var(--color-ivory);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-tan);
+    outline-offset: 3px;
+  }
+  img {
+    -webkit-user-drag: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ───────────────────────── Components ───────────────────────── */
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .section {
+    padding-block: var(--section-y);
+  }
+  .section-sm {
+    padding-block: var(--section-y-sm);
+  }
+
+  /* Type scale — fluid, so desktop sizes never land on phones. */
+  .t-hero {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 1.55rem + 4.9vw, 6rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+  }
+  .t-h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.45rem, 1.6rem + 3.9vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.018em;
+  }
+  .t-h2 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.05rem, 1.45rem + 2.7vw, 3.9rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+  .t-h3 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(1.4rem, 1.2rem + 0.75vw, 1.9rem);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+  }
+  .t-h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(1.2rem, 1.1rem + 0.4vw, 1.45rem);
+    line-height: 1.2;
+  }
+  .t-lead {
+    font-size: clamp(1rem, 0.94rem + 0.3vw, 1.15rem);
+    line-height: 1.65;
+    max-width: 38rem;
+  }
+  .t-body-sm {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .eyebrow {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  /* Legacy display class — sections still migrating to the .t-* scale. */
+  .display {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 0.98;
+  }
+  .head-gap {
+    margin-bottom: var(--head-gap);
+  }
+
+  /* Subtle film grain for dark surfaces — keeps flat blacks from looking cheap. */
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Leather saddle-stitch: a dashed rule used as a separator and as the inset border on type tiles. */
+  .stitch {
+    height: 1px;
+    background-image: repeating-linear-gradient(90deg, currentColor 0 7px, transparent 7px 12px);
+    opacity: 0.45;
+  }
+  .stitch-frame {
+    position: absolute;
+    inset: 0.65rem;
+    pointer-events: none;
+    border: 1px dashed currentColor;
+    opacity: 0.35;
+  }
+
+  /* Hero entrance — CSS so the headline paints before hydration (LCP). */
+  .enter {
+    animation: enterUp 0.9s var(--ease-out-soft) both;
+    animation-delay: calc(var(--intro) + var(--d, 0s));
+  }
+  .enter-line {
+    animation: lineUp 1s var(--ease-out-soft) both;
+    animation-delay: calc(var(--intro) + var(--d, 0s));
+  }
+  .enter-media {
+    animation: mediaIn 1.8s var(--ease-out-soft) both;
+    animation-delay: calc(var(--intro) * 0.6);
+  }
+}
+
+@keyframes enterUp {
+  from {
+    opacity: 0.001;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lineUp {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes scrollCue {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(200%);
+  }
+}
+/* Legacy page-hero entrance, kept until inner pages move to .enter */
+@keyframes fadeUp {
+  from {
+    opacity: 0.001;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes mediaIn {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ───────────────────────── Intro loader ─────────────────────────
+   Pattern adapted from the 21st.dev "Loading overlay" line reveal:
+   a gold seam draws, the CLF logo reveals, then the panels part along the seam. */
+.clf-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: loaderGone 0s linear 1.75s forwards;
+}
+.intro-seen .clf-loader {
+  display: none;
+}
+.clf-loader__panel {
+  position: absolute;
+  inset-block: 0;
+  width: 50.5%;
+  background: var(--color-ink);
+  animation: panelOut 0.7s cubic-bezier(0.76, 0, 0.24, 1) 1.05s forwards;
+}
+.clf-loader__panel--l {
+  left: 0;
+  --to: -100%;
+}
+.clf-loader__panel--r {
+  right: 0;
+  --to: 100%;
+}
+.clf-loader__seam {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--color-tan) 30%, var(--color-tan) 70%, transparent);
+  transform: scaleY(0);
+  animation:
+    seamIn 0.7s var(--ease-out-soft) 0.1s forwards,
+    fadeOut 0.3s ease 1s forwards;
+}
+.clf-loader__logo {
+  position: relative;
+  width: clamp(4.5rem, 3.5rem + 4vw, 6.5rem);
+  aspect-ratio: 708 / 856;
+  opacity: 0;
+  clip-path: inset(100% 0 0 0);
+  transform: scale(0.94);
+  animation:
+    logoIn 0.75s var(--ease-out-soft) 0.12s forwards,
+    logoOut 0.35s ease-in 0.95s forwards;
+}
+.clf-loader__logo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* Light sweep constrained to the logo's own shape via mask. */
+.clf-loader__sheen {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: url("/brand/clf-monogram-sm.webp") center / contain no-repeat;
+  mask: url("/brand/clf-monogram-sm.webp") center / contain no-repeat;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 244 214 / 0.85) 50%, transparent 65%) no-repeat;
+  background-size: 250% 100%;
+  background-position: 130% 0;
+  animation: sheen 0.7s ease-in-out 0.5s forwards;
+}
+@keyframes seamIn {
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes logoIn {
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: scale(1);
+  }
+}
+@keyframes logoOut {
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(0 0 0 0);
+    transform: scale(1.03);
+  }
+}
+@keyframes sheen {
+  to {
+    background-position: -30% 0;
+  }
+}
+@keyframes panelOut {
+  to {
+    transform: translateX(var(--to));
+  }
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes loaderGone {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* ───────────────────────── Reduced motion ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --intro: 0.35s;
+  }
+  :root.intro-seen {
+    --intro: 0s;
+  }
+  .enter,
+  .enter-line,
+  .enter-media {
+    animation: fadeIn 0.3s ease both;
+    animation-delay: var(--intro);
+  }
+  .clf-loader {
+    animation-delay: 0.7s;
+  }
+  .clf-loader__seam,
+  .clf-loader__sheen {
+    display: none;
+  }
+  .clf-loader__logo {
+    clip-path: none;
+    transform: none;
+    animation: fadeIn 0.25s ease forwards;
+  }
+  .clf-loader__panel {
+    width: 100%;
+    animation: fadeOut 0.3s ease 0.4s forwards;
+  }
+  .clf-loader__panel--r {
+    display: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
